@@ -1,0 +1,24 @@
+# Dependências
+/vendor/
+
+# Sites gerados (dados de produção)
+/sites/*/
+
+# Arquivos sensíveis
+.env
+
+# Sistema
+.DS_Store
+Thumbs.db
+*.log
+
+# IDE
+.vscode/
+.idea/
+
+# Instalação (deletar após instalar)
+install.php
+
+# Debug
+debug.php
+teste-api.php

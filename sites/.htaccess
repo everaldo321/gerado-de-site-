@@ -1,0 +1,8 @@
+# Permite acesso direto aos sites gerados
+Options -Indexes
+DirectoryIndex index.html
+
+# Garante que index.html seja servido corretamente
+<Files "*.html">
+    Header set Content-Type "text/html; charset=utf-8"
+</Files>

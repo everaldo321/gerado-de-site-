@@ -1,0 +1,122 @@
+╔══════════════════════════════════════════════════════════════╗
+║           META SHIELD — GUIA DE INSTALAÇÃO                   ║
+╚══════════════════════════════════════════════════════════════╝
+
+PASSO 1 — Criar banco de dados na Hostinger
+───────────────────────────────────────────
+1. Acesse: hPanel → Databases → MySQL Databases
+2. Crie um banco de dados e anote:
+   - Nome do banco
+   - Usuário do banco
+   - Senha do banco
+   - Host (geralmente "localhost")
+
+PASSO 2 — Editar o arquivo config.php
+───────────────────────────────────────────
+Abra o arquivo config.php e preencha:
+
+  DB_HOST    → geralmente "localhost"
+  DB_NAME    → nome do banco criado
+  DB_USER    → usuário do banco
+  DB_PASS    → senha do banco
+  BASE_URL   → https://seudominio.com.br (sem barra final)
+  SUBDOMAIN_SUFFIX → .seudominio.com.br
+  SERVER_IP  → IP do seu servidor Hostinger
+              (encontre em: hPanel → Hosting → Detalhes)
+
+PASSO 3 — Fazer upload para a Hostinger
+───────────────────────────────────────────
+1. Acesse: hPanel → File Manager → public_html
+2. Faça upload de TODOS os arquivos desta pasta para public_html
+3. Certifique-se que a pasta "sites/" existe e tem permissão 755
+
+PASSO 4 — Instalar o banco de dados
+───────────────────────────────────────────
+Acesse no navegador:
+  https://seudominio.com.br/install.php?key=instalar123
+
+Isso vai criar todas as tabelas e o usuário admin.
+
+PASSO 5 — Primeiro acesso
+───────────────────────────────────────────
+URL: https://seudominio.com.br/index.php
+Login: admin@seudominio.com.br
+Senha: admin123
+
+⚠️ MUDE A SENHA DO ADMIN IMEDIATAMENTE!
+⚠️ DELETE o arquivo install.php após instalar!
+
+PASSO 6 — Configurar a API Claude
+───────────────────────────────────────────
+1. Acesse o painel admin → Configurações
+2. Cole sua chave de API do Claude
+   (Obtenha em: https://console.anthropic.com)
+3. Salve as configurações
+
+PASSO 7 — Dar permissão à pasta sites/
+───────────────────────────────────────────
+No hPanel → File Manager:
+1. Clique com botão direito na pasta "sites"
+2. Permissões → 755
+OU via FTP: chmod 755 sites/
+
+PASSO 8 — Configurar subdomínio wildcard (opcional)
+───────────────────────────────────────────
+Para que sites fiquem em subdomínios (empresa.seudominio.com.br):
+1. hPanel → Domains → Subdomains
+2. Crie o subdomínio: *  (asterisco)
+3. Aponte para: public_html/
+Isso permite qualquer subdomínio automático.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ESTRUTURA DE ARQUIVOS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+public_html/
+├── config.php          ← EDITE ESTE ARQUIVO
+├── install.php         ← Delete após instalar
+├── index.php           ← Login
+├── dashboard.php       ← Painel do usuário
+├── novo-site.php       ← Criar site
+├── editar.php          ← Editar site
+├── logout.php
+├── index-router.php    ← Roteador de domínios
+├── .htaccess
+├── admin/              ← Painel administrativo
+│   ├── index.php
+│   ├── usuarios.php
+│   ├── configuracoes.php
+│   └── dominios.php
+├── api/                ← Endpoints internos
+├── includes/           ← Código base
+├── templates/          ← Template dos sites
+│   └── empresa.php
+├── assets/css/         ← Estilos
+└── sites/              ← Sites gerados ficam aqui
+    └── [slug]/
+        └── index.html
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+COMO CONECTAR DOMÍNIO PRÓPRIO DO CLIENTE
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+1. Cliente vai no painel de DNS do domínio dele
+2. Adiciona um registro A:
+   Tipo: A
+   Host: @ (ou www)
+   Valor: [IP do seu servidor Hostinger]
+   TTL: 300
+
+3. Na Hostinger, você adiciona o domínio como "Addon Domain":
+   hPanel → Domains → Add Domain
+
+4. No sistema, o usuário coloca o domínio na tela "Editar Site"
+5. O roteador (index-router.php) serve o site correto automaticamente
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+SUPORTE
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Em caso de erro 500: ative exibição de erros temporariamente
+Adicione no início do config.php:
+  ini_set('display_errors', 1);
+  error_reporting(E_ALL);

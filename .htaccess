@@ -1,0 +1,21 @@
+Options -Indexes
+DirectoryIndex index.php index.html
+
+# Protege o arquivo de configuração
+<FilesMatch "^config\.php$">
+    Order allow,deny
+    Deny from all
+</FilesMatch>
+
+RewriteEngine On
+
+# ── Rota /s/slug → index-router.php?slug=xxx ──────────────────
+# Serve sites pelo caminho: gerasite.camillefournier.shop/s/minha-empresa
+RewriteRule ^s/([a-z0-9-]+)/?$ /index-router.php?slug=$1 [L,QSA]
+
+# ── Rota domínios próprios dos clientes ───────────────────────
+# Qualquer domínio diferente do sistema vai para o router
+RewriteCond %{HTTP_HOST} !^(www\.)?gerasite\.camillefournier\.shop$ [NC]
+RewriteCond %{REQUEST_URI} !^/index-router\.php [NC]
+RewriteRule ^ /index-router.php [L,QSA]
+

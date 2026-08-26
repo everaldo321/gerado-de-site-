@@ -16,9 +16,6 @@ Thumbs.db
 .vscode/
 .idea/
 
-# Instalação (deletar após instalar)
-install.php
-
-# Debug
+# Debug (remover em produção)
 debug.php
 teste-api.php

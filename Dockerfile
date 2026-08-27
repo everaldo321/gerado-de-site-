@@ -1,5 +1,9 @@
 FROM php:8.2-apache
 
+# Corrige conflito de MPM (More than one MPM loaded)
+RUN a2dismod mpm_event mpm_worker 2>/dev/null || true
+RUN a2enmod mpm_prefork
+
 # Instala extensões PHP necessárias
 RUN docker-php-ext-install pdo pdo_mysql mysqli
 RUN apt-get update && apt-get install -y libcurl4-openssl-dev && docker-php-ext-install curl
@@ -16,9 +20,8 @@ RUN chown -R www-data:www-data /var/www/html
 RUN sed -i 's/AllowOverride None/AllowOverride All/g' /etc/apache2/apache2.conf
 
 # Porta do Railway
-EXPOSE ${PORT:-8080}
-
-# Apache na porta do Railway
-RUN sed -i "s/80/\${PORT}/g" /etc/apache2/sites-available/000-default.conf /etc/apache2/ports.conf
+ENV PORT=8080
+RUN echo 'Listen ${PORT}' >> /etc/apache2/ports.conf
+EXPOSE ${PORT}
 
 CMD apache2-foreground

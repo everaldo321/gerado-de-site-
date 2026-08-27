@@ -1,15 +1,22 @@
-FROM php:8.2-apache
+FROM ubuntu:24.04
 
-# Corrige conflito de MPM (More than one MPM loaded)
-# Desabilita TODOS os módulos MPM logo no início
-RUN a2dismod mpm_event mpm_worker mpm_prefork 2>/dev/null || true
+ENV DEBIAN_FRONTEND=noninteractive
 
-# Habilita explicitamente apenas o mpm_prefork (necessário para mod_php)
-RUN a2enmod mpm_prefork rewrite
+# Instala Apache e PHP do zero (evita configs de MPM já habilitadas
+# e conflitantes que vêm pré-instaladas na imagem php:8.2-apache)
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    apache2 \
+    libapache2-mod-php8.3 \
+    php8.3 \
+    php8.3-curl \
+    php8.3-mysql \
+    php8.3-mbstring \
+    php8.3-xml \
+    && rm -rf /var/lib/apt/lists/*
 
-# Instala extensões PHP necessárias
-RUN docker-php-ext-install pdo pdo_mysql mysqli
-RUN apt-get update && apt-get install -y libcurl4-openssl-dev && docker-php-ext-install curl
+# Garante que apenas o mpm_prefork (exigido pelo mod_php) esteja habilitado
+RUN a2dismod mpm_event mpm_worker 2>/dev/null || true
+RUN a2enmod mpm_prefork rewrite php8.3
 
 # Copia todo o projeto para o DocumentRoot do Apache
 COPY . /var/www/html/
@@ -21,12 +28,11 @@ RUN chown -R www-data:www-data /var/www/html
 # Habilita .htaccess (AllowOverride All)
 RUN sed -i 's/AllowOverride None/AllowOverride All/g' /etc/apache2/apache2.conf
 
-# Limpa o cache de configuração do Apache
-RUN rm -rf /var/cache/apache2/*
-
 # Porta do Railway (valor fixo, não depende de variável de ambiente em build time)
-RUN echo "Listen 8080" > /etc/apache2/ports.conf && /usr/sbin/apache2ctl configtest || true
+RUN echo "Listen 8080" > /etc/apache2/ports.conf && \
+    sed -i 's/<VirtualHost \*:80>/<VirtualHost *:8080>/' /etc/apache2/sites-available/000-default.conf && \
+    apache2ctl configtest
 
 EXPOSE 8080
 
-CMD apache2-foreground
+CMD ["apache2ctl", "-D", "FOREGROUND"]
